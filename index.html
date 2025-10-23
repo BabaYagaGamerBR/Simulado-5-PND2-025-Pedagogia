@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado PND 2025 - Pedagogia (v4 - Corrigido)</title>
+    <style>
+        /* CSS Revertido para a versão anterior (preferida pelo usuário) */
+        :root {
+            --primary-color: #0056b3; /* Azul escuro principal */
+            --light-blue-bg: #f0f4f9; /* Fundo geral */
+            --white-bg: #ffffff;
+            --text-color: #333;
+            --gray-border: #e0e0e0;
+            --green-correct: #28a745;
+            --red-incorrect: #dc3545;
+            --green-bg: #d4edda;
+            --red-bg: #f8d7da;
+            --gray-medium: #ced4da;
+             --gray-dark: #6c757d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--light-blue-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        #main-container {
+            max-width: 1100px;
+            margin: 20px auto;
+            background-color: var(--white-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 25px 40px;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--gray-border);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        header h1 { color: var(--primary-color); margin: 0; font-size: 2em; }
+         header p { color: var(--gray-dark); font-size: 1.1em; margin-top: 5px;}
+
+
+        #progress-bar-container { width: 100%; background-color: #e9ecef; border-radius: 5px; margin-bottom: 10px; height: 10px; overflow: hidden;}
+        #progress-bar { width: 0%; height: 100%; background-color: var(--primary-color); border-radius: 5px; transition: width 0.3s ease-in-out; }
+        #progress-text { font-size: 0.9em; color: #555; text-align: right; }
+
+        #quiz-layout { display: flex; flex-wrap: wrap; gap: 30px; }
+        #quiz-content { flex: 3; min-width: 300px; }
+        #sidebar { flex: 1; min-width: 250px; position: sticky; top: 20px; align-self: flex-start; }
+
+        #stats-box { background-color: var(--light-blue-bg); border: 1px solid var(--gray-border); border-radius: 8px; padding: 20px; }
+        #stats-box h3 { margin-top: 0; color: var(--primary-color); border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+        .stat-item { font-size: 1.1em; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .stat-item span:first-child { font-weight: 500; }
+        .stat-badge { font-weight: bold; padding: 3px 8px; border-radius: 4px; color: #fff; }
+        #stats-correct { background-color: var(--green-correct); }
+        #stats-incorrect { background-color: var(--red-incorrect); }
+        #stats-unanswered { background-color: #6c757d; }
+
+        .question-block { border: 1px solid var(--gray-border); border-radius: 8px; padding: 20px; background-color: var(--white-bg); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03); }
+        .question-header { font-size: 0.9em; color: #555; margin-bottom: 5px; }
+        .question-theme { font-size: 1.1em; font-weight: bold; color: var(--primary-color); margin-bottom: 15px; }
+        .question-text { font-weight: 500; font-size: 1.1em; margin-bottom: 20px; background-color: #fdfdfd; border: 1px solid #f0f0f0; padding: 15px; border-radius: 5px; }
+        .options-container { list-style-type: none; padding: 0; margin: 0; }
+        .option { background-color: #f8f9fa; border: 1px solid var(--gray-border); padding: 12px 15px; margin-bottom: 8px; border-radius: 5px; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; display: flex; align-items: flex-start; }
+        .option-letter { font-weight: bold; color: var(--primary-color); margin-right: 10px; min-width: 15px;} /* Garantir alinhamento */
+        .option:hover:not(.disabled) { background-color: #e9ecef; border-color: #adb5bd; }
+        .option.selected { font-weight: bold; }
+        .option.correct { background-color: var(--green-bg); border-color: var(--green-correct); color: #155724; }
+        .option.correct .option-letter { color: var(--green-correct); }
+        .option.incorrect { background-color: var(--red-bg); border-color: var(--red-incorrect); color: #721c24; }
+        .option.incorrect .option-letter { color: var(--red-incorrect); }
+        .option.disabled { cursor: default; opacity: 0.8; }
+         .option.disabled:not(.selected):not(.correct) { background-color: #f8f9fa; border-color: var(--gray-border); color: #6c757d;}
+
+
+        .feedback { margin-top: 15px; padding: 15px; border-radius: 5px; display: none; border: 1px solid transparent; }
+        .feedback.correct { background-color: #f0fff4; border-color: var(--green-correct); color: #155724; }
+        .feedback.incorrect { background-color: #fff6f6; border-color: var(--red-incorrect); color: #721c24; }
+        .feedback-content strong { display: block; margin-bottom: 5px; }
+
+        #navigation-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--gray-border); }
+        .nav-button { padding: 10px 20px; font-size: 1em; font-weight: bold; color: #fff; background-color: var(--primary-color); border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.2s; }
+        .nav-button:hover:not(:disabled) { background-color: #004085; }
+        .nav-button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        #finish-button { background-color: var(--green-correct); }
+        #finish-button:hover:not(:disabled) { background-color: #218838; }
+
+        #final-score-board { display: none; margin-top: 30px; padding: 20px; background-color: #e6f7ff; border: 2px solid #007bff; border-radius: 8px; text-align: center; }
+        #final-score-board h2 { margin-top: 0; color: #004085; }
+        #final-score-board p { font-size: 1.2em; margin: 10px 0; }
+        #final-score-board h3 { font-size: 1.5em; color: #004085; }
+
+        footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid var(--gray-border); }
+        .info-box { background-color: var(--light-blue-bg); border: 1px solid var(--gray-border); padding: 20px; border-radius: 8px; font-size: 0.95em; }
+        .info-box h3 { margin-top: 0; color: var(--primary-color); }
+        .info-box ul { padding-left: 20px; margin: 10px 0; }
+         .info-box ul li { margin-bottom: 5px; }
+        .info-box a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .info-box a:hover { text-decoration: underline; }
+        .info-box p { margin-bottom: 10px; }
+        .info-box p:last-child { margin-bottom: 0; }
+        .attribution { margin-top: 15px; text-align: right; font-weight: bold; color: var(--gray-dark); font-size: 0.9em; }
+         /* Estilos para o painel de navegação rápida */
+        #nav-panel {
+            margin-top: 20px;
+            background-color: #fff;
+            border: 1px solid var(--gray-border);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        #nav-panel h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--gray-medium);
+            padding-bottom: 8px;
+            margin-bottom: 15px; /* Aumenta espaço abaixo do título */
+            font-size: 1em; /* Tamanho do título */
+        }
+        #nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 colunas */
+            gap: 8px; /* Espaçamento entre botões */
+        }
+        .nav-grid-button {
+            padding: 6px; /* Aumenta um pouco o padding */
+            font-size: 0.85em; /* Tamanho da fonte nos botões */
+            text-align: center;
+            border: 1px solid var(--gray-medium);
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: var(--white-bg);
+            transition: all 0.2s;
+            font-weight: 500; /* Peso da fonte normal */
+        }
+        .nav-grid-button:hover {
+            background-color: #e9ecef;
+            border-color: var(--primary-color);
+        }
+        .nav-grid-button.answered-correct {
+            background-color: var(--green-bg);
+            border-color: var(--green-correct);
+            color: #155724; /* Cor do texto */
+        }
+        .nav-grid-button.answered-incorrect {
+            background-color: var(--red-bg);
+            border-color: var(--red-incorrect);
+            color: #721c24; /* Cor do texto */
+        }
+        .nav-grid-button.current {
+            box-shadow: 0 0 0 2px var(--primary-color); /* Destaque azul */
+            transform: scale(1.05);
+            font-weight: bold; /* Bold na atual */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        <header>
+            <h1>Simulado PND 2025 - Pedagogia</h1>
+            <p>Nível Difícil | Progresso Salvo | Navegação Questão por Questão</p>
+        </header>
+
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="progress-text"><span id="questions-answered-count">0</span>/50 respondidas</div>
+
+        <div id="quiz-layout">
+            <div id="quiz-content">
+                <div id="question-display-area">
+                    </div>
+                <div id="navigation-buttons">
+                    <button id="prev-button" class="nav-button" onclick="changeQuestion(-1)" disabled>Anterior</button>
+                    <button id="next-button" class="nav-button" onclick="changeQuestion(1)">Próximo</button>
+                    <button id="finish-button" class="nav-button" style="display: none;" onclick="showFinalResults()">Finalizar Simulado</button>
+                </div>
+            </div>
+
+            <div id="sidebar">
+                <div id="stats-box">
+                    <h3>Estatísticas</h3>
+                    <div class="stat-item">
+                        <span>Corretas</span>
+                        <span class="stat-badge" id="stats-correct">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Incorretas</span>
+                        <span class="stat-badge" id="stats-incorrect">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Não respondidas</span>
+                        <span class="stat-badge" id="stats-unanswered">50</span>
+                    </div>
+                     <button onclick="resetProgress()" style="width:100%; padding: 8px; margin-top: 15px; background-color: var(--red-incorrect); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em;">Reiniciar Simulado</button>
+                </div>
+                <div id="nav-panel">
+                     <h4>Navegação Rápida</h4>
+                     <div id="nav-grid">
+                         </div>
+                 </div>
+            </div>
+        </div>
+
+        <div id="final-score-board">
+            <h2>Resultados Finais</h2>
+            <p>Corretas: <span id="final-correct">0</span></p>
+            <p>Incorretas: <span id="final-incorrect">0</span></p>
+            <h3>Total: <span id="final-total">0</span> / 50</h3>
+            <button onclick="reviewAnswers()" style="padding: 10px 20px; margin-top: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">Revisar Respostas</button>
+             <button onclick="resetProgress()" style="padding: 10px 20px; margin-top: 15px; background-color: var(--gray-dark); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">Reiniciar Simulado</button>
+        </div>
+
+
+        <footer>
+             <div class="info-box" style="margin-bottom: 20px;">
+                <h3>Referências</h3>
+                <p>Este simulado foi construído com base nos seguintes documentos norteadores:</p>
+                 <ul>
+                    <li><a href="https://www.gov.br/inep/pt-br/assuntos/avaliacao-e-exames-da-educacao-basica/pnd" target="_blank">INEP/MEC - Página Oficial da Prova Nacional Docente (PND)</a></li>
+                    <li><a href="http://basenacionalcomum.mec.gov.br/images/BNCC_EI_EF_110518_versaofinal_site.pdf" target="_blank">MEC - Base Nacional Comum Curricular (BNCC - Ed. Infantil e E. Fundamental)</a></li>
+                    <li><a href="http://www.planalto.gov.br/ccivil_03/leis/l9394.htm" target="_blank">Planalto - Lei de Diretrizes e Bases da Educação (LDB, 9.394/96)</a></li>
+                     <li><a href="http://portal.mec.gov.br/index.php?option=com_docman&view=download&alias=73571-portaria-331-26maio2017-pdf&category_slug=maio-2017-pdf&Itemid=30192" target="_blank">MEC/INEP - Portaria nº 331/2017 (Referencial PND/ENADE Pedagogia - Base deste simulado)</a></li>
+                    <li><a href="http://portal.mec.gov.br/index.php?option=com_docman&view=download&alias=2298-rceb005-09&category_slug=setembro-2009-pdf&Itemid=30192" target="_blank">MEC/CNE - Diretrizes Curriculares Nacionais para Ed. Infantil (Res. 5/2009)</a></li>
+                     <li><a href="http://portal.mec.gov.br/docman/dezembro-2013-pdf/14710-res-cne-ceb-n-005-2009-pdf/file" target="_blank">MEC/CNE - Diretrizes Curriculares Nacionais Gerais para Ed. Básica (Res. 4/2010)</a></li>
+                    <li><a href="http://pne.mec.gov.br/images/pdf/pne_lei_13005_2014.pdf" target="_blank">Planalto - Plano Nacional de Educação (PNE, 13.005/2014)</a></li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h3>Sobre o Simulado</h3>
+                <p>Este simulado foi desenvolvido para ajudar você a se preparar para a Prova Nacional Docente (PND) 2025. Com 50 questões cuidadosamente elaboradas e revisadas, ele cobre tópicos da Formação Geral Docente e do Componente Específico de Pedagogia (conforme Portaria INEP nº 331/2017), com foco em situações-problema e temas complexos.</p>
+                <p>Cada questão inclui alternativas, resposta correta e um comentário detalhado. Use os botões "Anterior" e "Próximo" para navegar ou o painel de Navegação Rápida. Seu progresso é salvo automaticamente no navegador.</p>
+                <p><strong>Dica:</strong> Responda todas as questões antes de consultar os comentários para uma autoavaliação mais eficaz.</p>
+                <p class="attribution">Este simulado foi desenvolvido com base em documentos oficiais e referências normativas do MEC/INEP, buscando refletir o perfil e as competências exigidas na PND 2025 para Pedagogia. Trata-se de um Projeto Prof. Rafael Canatto.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // --- BANCO DE QUESTÕES (Revisado e Rebalanceado - 50 Questões) ---
+        const originalQuestions = [
+              // --- GABARITO A (10 Questões - Revisadas) ---
+            { theme: 'Currículo (Teorias Críticas)', text: '(Art. 7.IX) (Situação-Problema) O Coordenador Pedagógico observa que o material didático adotado, embora alinhado à BNCC, consistentemente usa exemplos e imagens que reforçam estereótipos de gênero (meninas em atividades domésticas, meninos em ciências). Conforme as Teorias Críticas do Currículo (Giroux), isso representa:', options: [ { text: 'A) Uma manifestação do currículo oculto que reproduz relações de poder e limita as possibilidades dos alunos.', correct: true }, { text: 'B) Um erro pontual do material, sem maiores implicações pedagógicas.', correct: false }, { text: 'C) Uma abordagem adequada, pois reflete os papéis tradicionais da sociedade.', correct: false }, { text: 'D) Uma estratégia para facilitar a compreensão, usando exemplos familiares.', correct: false }, { text: 'E) Uma questão a ser tratada apenas pelas Teorias Pós-Críticas, não pelas Críticas.', correct: false } ], commentary: 'Gabarito: A. (Nível: Difícil) As Teorias Críticas analisam como o currículo (formal e oculto) reproduz desigualdades, não só de classe, mas também de gênero. O material que reforça estereótipos (A) ensina implicitamente papéis sociais limitados, configurando o currículo oculto.' },
+            { theme: 'Gestão Democrática e PPP', text: '(Art. 7.XX) (Estudo de Caso) Durante a elaboração do PPP, um grupo de professores defende a manutenção de um sistema de avaliação classificatório (provas com nota), enquanto a equipe gestora e outros docentes propõem uma avaliação formativa. A melhor forma de resolver esse impasse, segundo os princípios da Gestão Democrática, é:', options: [ { text: 'A) Promover um debate fundamentado entre os segmentos, buscando um consenso que se alinhe aos princípios educacionais contemporâneos (formativa) e registrando a decisão no PPP.', correct: true }, { text: 'B) A direção impor a avaliação formativa, pois é a visão mais moderna.', correct: false }, { text: 'C) Manter a avaliação classificatória, pois é a vontade de parte dos professores.', correct: false }, { text: 'D) Deixar que cada professor escolha seu método avaliativo individualmente.', correct: false }, { text: 'E) Submeter a decisão a uma votação simples, sem discussão prévia.', correct: false } ], commentary: 'Gabarito: A. (Nível: Médio) A Gestão Democrática não é só votar (E), nem imposição (B). É *participação qualificada*. O ideal é o debate (A), a busca por consenso (A) com base em fundamentos pedagógicos, garantindo que o PPP reflita uma decisão coletiva e embasada.' },
+            { theme: 'Psicologia da Educação (Vygotsky - Linguagem)', text: '(Art. 7.XI) (Conceitual) Para Vygotsky, a "fala egocêntrica" observada em crianças pequenas (falar sozinha enquanto brinca) não é apenas um sinal de egocentrismo (como para Piaget), mas sim:', options: [ { text: 'A) Uma função crucial da linguagem como instrumento do pensamento, representando uma transição da fala social (externa) para o discurso interior (pensamento verbal).', correct: true }, { text: 'B) Um distúrbio de linguagem que precisa ser corrigido pelo professor.', correct: false }, { text: 'C) Um monólogo sem função cognitiva, apenas acompanhando a ação.', correct: false }, { text: 'D) Uma evidência de que a criança não atingiu o estágio operatório-concreto.', correct: false }, { text: 'E) Uma forma de imitar os adultos, sem relação com o desenvolvimento do pensamento.', correct: false } ], commentary: 'Gabarito: A. (Nível: Difícil) Vygotsky reinterpreta a fala egocêntrica. Para ele, é o *pensamento em voz alta*. A criança usa a fala (instrumento social) para *regular* sua própria ação e pensamento, antes de internalizá-la como discurso interior (A). É uma etapa fundamental, não um problema (B).' },
+            { theme: 'Metodologias (Ensino de História - Fontes)', text: '(Art. 7.III) (Aplicação) Um pedagogo dos Anos Iniciais quer desenvolver a noção de "fonte histórica". Qual atividade é MAIS adequada para crianças de 8-9 anos (3º/4º ano)?', options: [ { text: 'A) Analisar fontes primárias diversificadas e acessíveis (fotos antigas da família/cidade, objetos, relatos orais de avós), questionando quem produziu, quando e por quê.', correct: true }, { text: 'B) Ler um capítulo do livro didático sobre a Independência do Brasil e responder um questionário.', correct: false }, { text: 'C) Assistir a um filme de ficção histórica e assumir tudo como verdade.', correct: false }, { text: 'D) Memorizar a lista de presidentes do Brasil.', correct: false }, { text: 'E) Debater a estrutura política do Império Romano com base em textos acadêmicos.', correct: false } ], commentary: 'Gabarito: A. (Nível: Médio) Nos Anos Iniciais, a noção de fonte histórica (Art. 7.III) deve ser construída a partir do concreto e do próximo (A). Analisar uma foto antiga da avó como "fonte" é mais significativo do que ler sobre D. Pedro I (B). O objetivo é entender que o passado deixa "vestígios" que precisam ser interpretados.' },
+            { theme: 'Avaliação da Aprendizagem (Erro Construtivo)', text: '(Art. 7.XIX) (Conceitual) Na perspectiva construtivista (Piaget/Ferreiro) e sociointeracionista (Vygotsky), o erro cometido pelo aluno no processo de aprendizagem deve ser visto pelo professor como:', options: [ { text: 'A) Uma oportunidade de diagnóstico: uma "pista" valiosa que revela como o aluno está pensando (sua hipótese) e orienta a intervenção pedagógica na ZDP.', correct: true }, { text: 'B) Um fracasso do aluno, que deve ser penalizado com nota baixa para que se esforce mais.', correct: false }, { text: 'C) Um problema a ser ignorado, pois o importante é o resultado final.', correct: false }, { text: 'D) Uma prova da ineficácia do método de ensino, que deve ser descartado imediatamente.', correct: false }, { text: 'E) Um sinal de falta de pré-requisitos, indicando que o aluno não deveria estar naquela série.', correct: false } ], commentary: 'Gabarito: A. (Nível: Médio) Tanto para Piaget ("erro construtivo") quanto para Vygotsky (ZDP), o erro não é um fim, mas um *meio*. Ele mostra o "andaime" cognitivo do aluno (A). O professor não pune (B) nem ignora (C), mas *usa* o erro para entender o pensamento do aluno e mediar seu avanço.' },
+            { theme: 'Alfabetização (Consciência Fonológica)', text: '(Art. 7.V) (Aplicação) Uma professora do 1º ano propõe atividades como: identificar palavras que rimam (gato/pato), bater palmas para cada sílaba de uma palavra (BO-NE-CA), e dizer qual palavra começa com o mesmo som de "MESA" (macaco? bola?). Essas atividades visam desenvolver a:', options: [ { text: 'A) Consciência fonológica, que é a capacidade de refletir e manipular os sons da fala (rimas, sílabas, fonemas).', correct: true }, { text: 'B) Caligrafia, focando no traçado correto das letras.', correct: false }, { text: 'C) Fluência de leitura em voz alta.', correct: false }, { text: 'D) Compreensão de textos complexos.', correct: false }, { text: 'E) Memorização do nome e da ordem das letras do alfabeto.', correct: false } ], commentary: 'Gabarito: A. (Nível: Médio) Consciência Fonológica (A) é a habilidade metalingüística de "brincar" com os sons da fala. As atividades descritas (rimas, sílabas, fonema inicial) são exemplos clássicos de como desenvolvê-la, sendo crucial para a alfabetização (relação letra-som).' },
+            { theme: 'Educação Infantil (Direitos de Aprendizagem)', text: '(Art. 7.VIII) (Aplicação) Um professor da Pré-Escola organiza um projeto onde as crianças escolhem um tema de interesse (ex: dinossauros), pesquisam em livros e na internet (com ajuda), constroem maquetes e apresentam suas descobertas aos colegas. Esta prática garante múltiplos Direitos de Aprendizagem da BNCC E.I., especialmente:', options: [ { text: 'A) Participar (na escolha do tema), Explorar (fontes de pesquisa) e Expressar (suas descobertas).', correct: true }, { text: 'B) Apenas Brincar, pois é a atividade principal da E.I.', correct: false }, { text: 'C) Apenas Conhecer-se, focando na identidade individual.', correct: false }, { text: 'D) Apenas Conviver, pois trabalham em grupo.', correct: false }, { text: 'E) Nenhum, pois pesquisa não é adequada para a E.I.', correct: false } ], commentary: 'Gabarito: A. (Nível: Médio) A BNCC E.I. tem 6 Direitos. O projeto descrito permite à criança: *Participar* ativamente das decisões (A), *Explorar* diferentes linguagens e fontes (A), e *Expressar* suas ideias e aprendizados (A). Brincar (B), Conviver (D) e Conhecer-se (C) também podem estar presentes, mas os eixos centrais da atividade são Participar, Explorar e Expressar.' },
+            { theme: 'Educação Especial (PDI/PEI)', text: '(Art. 7.XIV) (Conceitual) O Plano de Desenvolvimento Individual (PDI) ou Plano Educacional Individualizado (PEI) é um instrumento fundamental no AEE para alunos com deficiência. Sua principal função é:', options: [ { text: 'A) Registrar as metas, estratégias pedagógicas e avaliativas específicas para o aluno, elaboradas colaborativamente entre o professor do AEE, o professor da sala comum e a família.', correct: true }, { text: 'B) Substituir o currículo comum, criando um currículo paralelo e simplificado para o aluno.', correct: false }, { text: 'C) Ser um laudo médico detalhado sobre a deficiência do aluno.', correct: false }, { text: 'D) Listar apenas as dificuldades do aluno, sem focar nas potencialidades.', correct: false }, { text: 'E) Ser elaborado unicamente pelo professor da sala comum, sem a participação do AEE.', correct: false } ], commentary: 'Gabarito: A. (Nível: Médio) O PDI/PEI é o documento que *concreta* a inclusão. Ele não é um currículo paralelo (B), mas sim um plano de *como* o aluno (com suas especificidades) acessará o currículo comum. Ele define metas individuais, estratégias (AEE + sala comum) e formas de avaliação adaptadas, sendo construído coletivamente (A).' },
+            { theme: 'Fundamentos (Pedagogia como Ciência)', text: '(Art. 7.XVI) (Conceitual) Afirmar que a Pedagogia é a "ciência da prática educativa" (Libâneo) significa reconhecer que:', options: [ { text: 'A) A Pedagogia possui um objeto de estudo próprio (a educação como prática social), métodos de investigação e um corpo de conhecimentos específicos, não sendo apenas um campo de aplicação de outras ciências.', correct: true }, { text: 'B) A prática educativa só pode ser estudada pela Sociologia e pela Psicologia.', correct: false }, { text: 'C) A teoria pedagógica é irrelevante, importando apenas a prática intuitiva do professor.', correct: false }, { text: 'D) A Pedagogia se limita a descrever as melhores técnicas de ensino (Didática Instrumental).', correct: false }, { text: 'E) A educação é um fenômeno exclusivamente escolar, ignorando espaços não-formais.', correct: false } ], commentary: 'Gabarito: A. (Nível: Difícil) Este conceito busca afirmar a *autonomia científica* da Pedagogia. Ela não é só um "campo de aplicação" (A) da Psicologia (B) ou Sociologia (B). A Pedagogia tem seu próprio *objeto* (a prática educativa em sua complexidade) e produz conhecimento sobre ele, articulando teoria e prática.' },
+            { theme: 'BNCC (Competência Geral - Cultura Digital)', text: '(Art. 6.I.a.3) (Aplicação) Um professor propõe que os alunos do 5º ano criem um blogue colaborativo sobre um tema estudado, utilizando ferramentas online para pesquisa, produção de texto, edição de imagens e interação com leitores. Esta atividade desenvolve principalmente a Competência Geral da BNCC número 5, que é:', options: [ { text: 'A) Cultura Digital: Compreender, utilizar e criar tecnologias digitais de forma crítica, significativa, reflexiva e ética.', correct: true }, { text: 'B) Comunicação: Utilizar diferentes linguagens para se expressar.', correct: false }, { text: 'C) Argumentação: Formular, negociar e defender ideias.', correct: false }, { text: 'D) Trabalho e Projeto de Vida: Entender o mundo do trabalho.', correct: false }, { text: 'E) Conhecimento: Utilizar conhecimentos historicamente construídos.', correct: false } ], commentary: 'Gabarito: A. (Nível: Médio) Embora a atividade envolva Comunicação (B) e Conhecimento (E), seu foco principal é a *Cultura Digital* (A). Os alunos não estão apenas *usando* a tecnologia, mas *compreendendo* seu funcionamento (blog), *criando* conteúdo digital e (espera-se) interagindo de forma *crítica e ética*.' },
+
+            // --- GABARITO B (10 Questões - Revisadas) ---
+             { theme: 'Educação Infantil (Eixos Estruturantes)', text: '(Art. 7.IV, XVIII) (Conceitual) A BNCC da Educação Infantil define "Interações" e "Brincadeira" como eixos estruturantes. Isso significa que:', options: [ { text: 'A) As atividades devem ser sempre dirigidas pelo professor, limitando a interação entre as crianças.', correct: false }, { text: 'B) Toda a prática pedagógica (organização do espaço, tempo, materiais, propostas) deve se organizar em torno de oportunidades para a criança interagir com outros (adultos/crianças) e brincar (sua principal forma de aprender).', correct: true }, { text: 'C) A brincadeira é apenas um passatempo (recreio), separada das atividades de aprendizagem "sérias".', correct: false }, { text: 'D) A interação deve ser evitada, pois gera indisciplina.', correct: false }, { text: 'E) Esses eixos se aplicam apenas à Creche (0-3 anos), não à Pré-Escola (4-5 anos).', correct: false } ], commentary: 'Gabarito: B. (Nível: Médio) Dizer que são "eixos estruturantes" significa que eles *sustentam* toda a proposta pedagógica da E.I. (B). Não são apenas "atividades", mas a *base* sobre a qual a aprendizagem acontece. A brincadeira (B) não é o oposto de aprender; é a *forma* como a criança aprende.' },
+            { theme: 'Psicologia da Educação (Wallon - Integração)', text: '(Art. 7.XI) (Conceitual) A teoria de Henri Wallon enfatiza a integração dos conjuntos funcionais (motor, afetivo, cognitivo). Para ele, um ato como o choro de um bebê com fome é:', options: [ { text: 'A) Puramente motor (reflexo), sem significado afetivo ou cognitivo.', correct: false }, { text: 'B) Uma manifestação integrada: tem uma base motora (contração muscular), expressa uma emoção/necessidade (afetivo) e comunica algo ao cuidador (início da cognição/linguagem).', correct: true }, { text: 'C) Principalmente cognitivo, pois o bebê já pensa logicamente sobre a fome.', correct: false }, { text: 'D) Um sinal de desenvolvimento incompleto, que desaparecerá com a linguagem.', correct: false }, { text: 'E) Uma tentativa de manipulação afetiva da mãe.', correct: false } ], commentary: 'Gabarito: B. (Nível: Difícil) Wallon via o desenvolvimento como *integrado*. O choro não é só um som (motor); ele *expressa* (afetivo) e *comunica* (cognitivo) (B). Para ele, a motricidade e a afetividade são as bases sobre as quais a cognição (inteligência discursiva) se desenvolverá.' },
+            { theme: 'Metodologias (Letramento Matemático)', text: '(Art. 7.III) (Aplicação) Um professor dos Anos Iniciais, buscando desenvolver o Letramento Matemático, propõe aos alunos que analisem panfletos de supermercado para comparar preços, calcular descontos e planejar uma "compra" com um orçamento limitado. Esta atividade é potente porque:', options: [ { text: 'A) Treina o algoritmo da subtração com reserva de forma intensiva.', correct: false }, { text: 'B) Insere a matemática em uma prática social significativa (fazer compras), exigindo raciocínio, interpretação e comunicação, para além do cálculo puro.', correct: true }, { text: 'C) Ensina os nomes das figuras geométricas presentes nos produtos.', correct: false }, { text: 'D) Avalia a capacidade de memorização dos preços pelos alunos.', correct: false }, { text: 'E) Substitui a necessidade de ensinar as quatro operações básicas.', correct: false } ], commentary: 'Gabarito: B. (Nível: Médio) Letramento Matemático é usar a matemática na vida. Analisar panfletos (B) exige mais do que "fazer conta" (A): exige ler (interpretar o panfleto), comparar, estimar, tomar decisões (o que comprar com o dinheiro?). É a matemática com *função social*.' },
+            { theme: 'Alfabetização (Alfaletrar)', text: '(Art. 7.V) (Conceitual) Magda Soares argumenta que a escola historicamente falhou ao dissociar as "facetas" da alfabetização e do letramento. Para ela, a faceta "alfabetização" refere-se especificamente à:', options: [ { text: 'A) Compreensão e uso social de textos diversos (práticas de letramento).', correct: false }, { text: 'B) Apropriação do Sistema de Escrita Alfabética (SEA): a compreensão do código, da relação fonema-grafema e das regras ortográficas.', correct: true }, { text: 'C) Leitura fluente de textos literários complexos.', correct: false }, { text: 'D) Capacidade de argumentação oral em debates.', correct: false }, { text: 'E) Utilização de tecnologias digitais para leitura e escrita.', correct: false } ], commentary: 'Gabarito: B. (Nível: Difícil) Magda Soares distingue: *Letramento* (A) é o uso social. *Alfabetização* (B) é o domínio do *código*, do "como" a escrita funciona (relação som-letra, ortografia). Ela defende que ambos devem ser ensinados juntos ("alfaletrar"), mas são conceitualmente distintos.' },
+            { theme: 'LDB (Organização - Ciclos)', text: '(Art. 7.XIX) (Análise) A organização do Ensino Fundamental em Ciclos, embora prevista na LDB, é alvo de debates. Uma crítica frequente a implementações inadequadas dos ciclos é que:', options: [ { text: 'A) Os ciclos impedem a interdisciplinaridade.', correct: false }, { text: 'B) Podem mascarar dificuldades de aprendizagem ("promoção automática"), se não houver um acompanhamento individualizado e intervenções pedagógicas eficazes *dentro* do ciclo.', correct: true }, { text: 'C) Aumentam a reprovação, pois o aluno só é avaliado no final de 3 anos.', correct: false }, { text: 'D) São incompatíveis com a BNCC.', correct: false }, { text: 'E) Exigem professores especialistas em todas as áreas desde o 1º ano.', correct: false } ], commentary: 'Gabarito: B. (Nível: Difícil) A *ideia* dos ciclos é dar mais tempo ao aluno e focar no processo. O *risco* (B) é a "promoção automática": o aluno passa de ano sem aprender, e a dificuldade só é constatada no fim do ciclo, tarde demais. Uma implementação *correta* exige avaliação formativa constante e recuperação *paralela* (dentro do ciclo).' },
+            { theme: 'BNCC (Ciências - Investigação)', text: '(Art. 6.II.a.2) (Metodologia) Ao propor uma atividade investigativa em Ciências (ex: observar o crescimento de feijões em diferentes condições de luz), o papel do pedagogo, segundo a BNCC, NÃO é:', options: [ { text: 'A) Estimular a curiosidade e a formulação de perguntas/hipóteses pelos alunos.', correct: false }, { text: 'B) Fornecer antecipadamente todas as respostas corretas, evitando que os alunos "percam tempo" com hipóteses erradas.', correct: true }, { text: 'C) Orientar a observação sistemática e o registro dos dados.', correct: false }, { text: 'D) Mediar a discussão dos resultados e a comparação com as hipóteses iniciais.', correct: false }, { text: 'E) Proporcionar materiais e um ambiente seguro para a experimentação.', correct: false } ], commentary: 'Gabarito: B. (Nível: Médio) O encaminhamento investigativo (Letramento Científico) pressupõe que o aluno *construa* o conhecimento. O professor não dá a resposta pronta (B); ele *orienta* o processo (A, C, D, E), permitindo que o aluno teste suas hipóteses (mesmo que erradas) e aprenda com a investigação.' },
+            { theme: 'Educação do Campo (Identidade)', text: '(Art. 7.XV) (Conceitual) A Educação do Campo busca afirmar a identidade dos sujeitos do campo (camponeses, indígenas, quilombolas, ribeirinhos). Isso implica um currículo que:', options: [ { text: 'A) Ignore os saberes locais, focando apenas no conhecimento científico universal.', correct: false }, { text: 'B) Dialogue com os saberes da comunidade (cultura, trabalho, história local) e os articule com o conhecimento universal, valorizando a identidade camponesa.', correct: true }, { text: 'C) Prepare os jovens exclusivamente para migrar para a cidade em busca de emprego.', correct: false }, { text: 'D) Siga rigidamente o livro didático urbano, sem adaptações.', correct: false }, { text: 'E) Promova a homogeneização cultural, eliminando as diferenças regionais.', correct: false } ], commentary: 'Gabarito: B. (Nível: Médio) A Educação *do* Campo não nega o conhecimento universal (A), mas defende que ele deve *dialogar* com os saberes locais (B). O currículo deve ser relevante para a vida no campo, fortalecendo a identidade (B) e as possibilidades de permanência (contra a lógica do êxodo rural - C).' },
+            { theme: 'EJA (Especificidades)', text: '(Art. 7.XII) (Análise) Um dos maiores desafios da EJA é a evasão. Considerando o perfil do aluno (trabalhador, com defasagem escolar, baixa autoestima), qual fator pedagógico contribui significativamente para a permanência?', options: [ { text: 'A) Um currículo rígido e extenso, com muitas provas e foco na reprovação.', correct: false }, { text: 'B) Uma metodologia que valorize seus saberes prévios, utilize temas relevantes para sua vida (trabalho, cidadania) e promova um ambiente acolhedor e de sucesso.', correct: true }, { text: 'C) Aulas exclusivamente expositivas, longas e teóricas.', correct: false }, { text: 'D) O uso de materiais infantis, por serem mais fáceis.', correct: false }, { text: 'E) A comparação constante com o desempenho de alunos do ensino regular.', correct: false } ], commentary: 'Gabarito: B. (Nível: Médio) A permanência na EJA depende de a escola fazer *sentido* para o aluno adulto. Isso passa por metodologias que partam da sua realidade (B), conteúdos relevantes (B), e um ambiente que *acolha* (B) e quebre o ciclo de fracasso escolar (autoestima).' },
+            { theme: 'Fundamentos (Filosofia - Ética)', text: '(Art. 5.I) (Aplicação) Um professor presencia uma situação de bullying em sala. Ao intervir, ele não apenas repreende o agressor, mas promove uma roda de conversa sobre respeito, empatia e as consequências dos atos, buscando uma solução coletiva. Essa postura reflete a dimensão:', options: [ { text: 'A) Técnica da docência (aplicar a regra).', correct: false }, { text: 'B) Ética e política da docência (formar para a convivência democrática e justa).', correct: true }, { text: 'C) Psicológica (analisar o trauma do agressor).', correct: false }, { text: 'D) Burocrática (registrar a ocorrência).', correct: false }, { text: 'E) Sociológica (analisar a classe social dos envolvidos).', correct: false } ], commentary: 'Gabarito: B. (Nível: Médio) A intervenção vai além da punição (A). Ao promover o diálogo sobre *valores* (respeito, empatia) e a *ação* coletiva (solução), o professor atua na dimensão *ética* (B) (o que é certo/justo?) e *política* (B) (como conviver na Pólis/comunidade?) da educação, conforme o perfil esperado no Art. 5.' },
+            { theme: 'Gestão (Pedagogia Social)', text: '(Art. 7.X) (Conceitual) A atuação do pedagogo em espaços não-escolares (Pedagogia Social) exige a adaptação de seus saberes. Ao trabalhar em uma ONG com jovens em situação de rua, o foco principal do pedagogo seria:', options: [ { text: 'A) Aplicar o currículo da BNCC do Ensino Médio regular.', correct: false }, { text: 'B) Desenvolver processos educativos (formais ou não-formais) que promovam a autonomia, a cidadania, a reinserção social e a garantia de direitos desses jovens.', correct: true }, { text: 'C) Focar exclusivamente na profissionalização, sem discutir questões sociais.', correct: false }, { text: 'D) Oferecer apenas atividades recreativas, sem intencionalidade pedagógica.', correct: false }, { text: 'E) Substituir o papel do assistente social no encaminhamento para abrigos.', correct: false } ], commentary: 'Gabarito: B. (Nível: Difícil) A Pedagogia Social (B) adapta a intencionalidade educativa a contextos de vulnerabilidade. O foco não é o currículo escolar tradicional (A), mas a formação humana (autonomia, cidadania - B) e a transformação social (reinserção, direitos - B), usando a educação como ferramenta.' },
+
+             // --- GABARITO C (10 Questões - Revisadas) ---
+             { theme: 'BNCC (Transição E.I. para E.F.)', text: '(Art. 7.XI, XVIII) (Situação-Problema) A transição da Educação Infantil (Pré-Escola) para o Ensino Fundamental (1º ano) é um momento delicado. A BNCC propõe que, para garantir uma transição sem rupturas, o 1º ano do E.F. deve:', options: [ { text: 'A) Romper totalmente com a E.I., introduzindo imediatamente a rotina de provas, notas e foco exclusivo na alfabetização sentada.', correct: false }, { text: 'B) Ser uma "Pré-Escola III", mantendo apenas o brincar livre, sem foco na alfabetização.', correct: false }, { text: 'C) Articular as duas etapas, acolhendo as especificidades da criança de 6 anos e integrando elementos do brincar e das interações (E.I.) com o início da sistematização da alfabetização (E.F.).', correct: true }, { text: 'D) Focar apenas nos alunos que já vêm alfabetizados da E.I., separando-os dos demais.', correct: false }, { text: 'E) Proibir qualquer atividade lúdica, pois a LDB define o E.F. como "formação básica", o que exclui o brincar.', correct: false } ], commentary: 'Gabarito: C. (Nível: Médio) A BNCC é clara sobre a necessidade de *articulação* (e não ruptura - A) entre E.I. e E.F. O 1º ano (e até o 2º) deve considerar que a criança de 6 anos ainda aprende pelo lúdico (Interações/Brincadeira), mas agora *também* precisa da sistematização da alfabetização. É um equilíbrio.' },
+            { theme: 'Avaliação (Formativa vs Somativa)', text: '(Art. 7.XIX) (Comparação) Um professor aplica um teste ao final do bimestre valendo 10 pontos para "fechar a média" (Avaliação Somativa). Outro professor observa o aluno durante um projeto, analisa seu portfólio e usa o "erro" em uma atividade para replanejar a aula seguinte (Avaliação Formativa). A principal diferença é que a Avaliação Formativa:', options: [ { text: 'A) É idêntica à Somativa, mas usa um nome diferente.', correct: false }, { text: 'B) É mais fácil, pois não exige que o professor planeje.', correct: false }, { text: 'C) Ocorre *durante* o processo de aprendizagem e tem como objetivo *regular* (ajustar) o ensino, e não apenas medir o resultado final.', correct: true }, { text: 'D) É usada apenas na Educação Infantil, não se aplicando ao Ensino Fundamental.', correct: false }, { text: 'E) É subjetiva e, portanto, menos confiável que uma prova objetiva (Somativa).', correct: false } ], commentary: 'Gabarito: C. (Nível: Médio) A Avaliação Somativa (do inglês, *sum*, soma) ocorre no *fim* do processo para "somar" o que foi aprendido (ex: prova final). A Avaliação Formativa (ou Mediadora, Hoffmann) ocorre *durante* o processo e serve para "formar" (melhorar) a aprendizagem, fornecendo feedback ao aluno e ao professor (para replanejar).' },
+            { theme: 'Educação Especial (Libras e Ed. Bilíngue)', text: '(Art. 7.XIV) (Aplicação/Lei) A Lei 14.191/2021 alterou a LDB (incluindo o Art. 60-A) para estabelecer a "Educação Bilíngue de Surdos". Este modelo, diferente da "Educação Inclusiva" comum, propõe que o ensino para surdos deve ocorrer:', options: [ { text: 'A) Em escolas regulares, onde o surdo deve se adaptar e aprender prioritariamente a Língua Portuguesa oral.', correct: false }, { text: 'B) Apenas em casa, com professores particulares de Libras.', correct: false }, { text: 'C) Em escolas ou classes bilíngues, onde a Libras (Língua Brasileira de Sinais) é a primeira língua (L1) e a Língua Portuguesa (na modalidade escrita) é a segunda língua (L2).', correct: true }, { text: 'D) Em escolas ou classes bilíngues, onde a Língua Portuguesa (oral) é a L1 e a Libras é a L2 (reforço).', correct: false }, { text: 'E) Em escolas regulares, com um intérprete de Libras, mas sem alterar o currículo (focado no português oral).', correct: false } ], commentary: 'Gabarito: C. (Nível: Difícil) Esta é uma atualização legislativa importante. A comunidade surda (que se vê como uma minoria linguística, e não como "deficiente") conquistou o direito à Educação Bilíngue, que reconhece a Libras como língua de instrução (L1) e o Português *escrito* (não oral) como L2. A alternativa E (intérprete) é o modelo inclusivo anterior, que a Educação Bilíngue busca superar.' },
+            { theme: 'Psicologia da Educação (Piaget - Estágios)', text: '(Art. 7.XI) (Estudo de Caso) Uma criança de 9 anos (4º ano) já consegue resolver problemas matemáticos concretos, entende a conservação de números (teste das fichas) e consegue classificar objetos por múltiplos critérios (cor, forma, tamanho). No entanto, ela tem extrema dificuldade em resolver problemas hipotéticos (ex: "Imagine um mundo sem gravidade..."). Segundo Piaget, essa criança está no estágio:', options: [ { text: 'A) Sensório-Motor (0-2 anos).', correct: false }, { text: 'B) Pré-Operatório (2-7 anos).', correct: false }, { text: 'C) Operatório-Concreto (7-11 anos).', correct: true }, { text: 'D) Operatório-Formal (12+ anos).', correct: false }, { text: 'E) Silábico-Alfabético.', correct: false } ], commentary: 'Gabarito: C. (Nível: Médio) A criança de 9 anos superou o Pré-Operatório (pois já tem conservação e classificação). Ela está no Operatório-Concreto: opera (pensa logicamente) sobre o *concreto* (o que pode ver/tocar). Ela ainda não atingiu o Operatório-Formal (D), que é a capacidade de pensar sobre o *abstrato* e o *hipotético* ("o mundo sem gravidade").' },
+            { theme: 'Fundamentos (Antropologia da Educação)', text: '(Art. 7.I) (Conceitual) A Antropologia da Educação é crucial para o pedagogo por analisar o fenômeno educativo a partir do conceito de "Cultura". Uma contribuição dessa área é combater o "etnocentrismo" na escola, que se manifesta quando:', options: [ { text: 'A) O professor valoriza e inclui as diferentes culturas (ex: migrantes, indígenas, quilombolas) no currículo.', correct: false }, { text: 'B) A escola promove a gestão democrática, ouvindo as vozes da comunidade.', correct: false }, { text: 'C) A escola (ou o professor) julga as práticas culturais dos alunos e suas famílias (ex: religião, sotaque, hábitos) como "erradas" ou "inferiores" com base na sua própria cultura (tendo a cultura escolar/dominante como a única correta).', correct: true }, { text: 'D) O professor utiliza a psicologia de Vygotsky para entender a ZDP do aluno.', correct: false }, { text: 'E) O professor aplica uma avaliação diagnóstica no início do ano.', correct: false } ], commentary: 'Gabarito: C. (Nível: Difícil) "Etnocentrismo" é o ato de tomar a própria etnia (ou cultura) como o "centro" (o padrão-ouro) e julgar as demais como inferiores ou erradas. A Antropologia ajuda o pedagogo a praticar o "Relativismo Cultural", ou seja, entender que as práticas da família do aluno (C) não são "erradas", apenas *diferentes*.' },
+            { theme: 'BNCC (Campos de Experiência - E.I.)', text: '(Art. 7.XVIII) (Aplicação) Um professor da Pré-Escola (4 anos) leva as crianças ao pátio para observar como a sombra das árvores muda de lugar ao longo da manhã e propõe um registro com desenho. Esta atividade, embora simples, está alinhada ao Campo de Experiência da BNCC:', options: [ { text: 'A) "O eu, o outro e o nós", pois foca na identidade.', correct: false }, { text: 'B) "Corpo, gestos e movimentos", pois envolve correr no pátio.', correct: false }, { text: 'C) "Espaços, tempos, quantidades, relações e transformações", pois a criança observa fenômenos naturais (transformações) e a passagem do tempo.', correct: true }, { text: 'D) "Escuta, fala, pensamento e imaginação", pois foca na contação de histórias.', correct: false }, { text: 'E) "Traços, sons, cores e formas", pois o foco é apenas a qualidade estética do desenho.', correct: false } ], commentary: 'Gabarito: C. (Nível: Médio) Este é o campo da "pré-ciência" e "pré-matemática". Ao observar a sombra (fenômeno físico) e sua mudança (passagem do *tempo*, relação espacial), a criança está investigando *transformações* e *relações* no *espaço* e no *tempo*.' },
+            { theme: 'Metodologias (Ensino de Arte)', text: '(Art. 7.III) (Conceitual) A Abordagem Triangular para o Ensino de Arte (proposta por Ana Mae Barbosa) supera a prática tradicional (cópia) e o espontaneísmo (livre expressão pura). Ela se baseia em três eixos indissociáveis:', options: [ { text: 'A) Pintura, Escultura e Desenho.', correct: false }, { text: 'B) Passado, Presente e Futuro da Arte.', correct: false }, { text: 'C) O Fazer artístico (produção do aluno), a Leitura de Imagem (apreciação) e a Contextualização (história da arte, biografia do artista).', correct: true }, { text: 'D) Cópia (técnica), Apreciação (gosto) e Venda (mercado).', correct: false }, { text: 'E) Arte Clássica, Arte Moderna e Arte Contemporânea.', correct: false } ], commentary: 'Gabarito: C. (Nível: Difícil) A Abordagem Triangular é a metodologia mais influente no ensino de Arte (BNCC). O aluno deve: 1) Produzir (Fazer), 2) Analisar/Apreciar obras (Leitura de Imagem) e 3) Entender quem fez, onde fez, por que fez (Contextualização). A alternativa A lista linguagens, não eixos metodológicos.' },
+            { theme: 'Currículo (Teorias Pós-Críticas)', text: '(Art. 7.IX) (Conceitual) As Teorias Pós-Críticas do Currículo (influenciadas por Foucault, Derrida, Multiculturalismo) avançam em relação às Teorias Críticas (marxistas). Enquanto as Críticas focavam na "Classe Social" e na "Reprodução", as Pós-Críticas focam:', options: [ { text: 'A) Na eficiência, padronização e no controle (Teoria Tecnicista).', correct: false }, { text: 'B) No ensino dos conteúdos clássicos e científicos como verdades universais (Teoria Tradicional).', correct: false }, { text: 'C) Nas relações de poder que produzem as "Diferenças" (gênero, raça, sexualidade) e na análise do "Discurso" e da "Identidade".', correct: true }, { text: 'D) Apenas na psicologia do desenvolvimento de Piaget.', correct: false }, { text: 'E) Exclusivamente na economia e na luta de classes, ignorando a cultura.', correct: false } ], commentary: 'Gabarito: C. (Nível: Difícil) As Teorias Críticas (Bourdieu, Althusser) focavam na *classe social* (E). As Pós-Críticas (anos 90+) dizem que o poder não é só econômico. Elas analisam como o currículo marginaliza identidades de *gênero*, *raça*, *sexualidade* (Multiculturalismo, Estudos de Gênero, Teoria Queer), focando no *discurso* e na *diferença*.' },
+            { theme: 'Dificuldades de Aprendizagem vs. Fracasso Escolar', text: '(Art. 7.XVII) (Estudo de Caso) Uma escola em área de alta vulnerabilidade social apresenta índices alarmantes de "fracasso escolar" (distorção idade-série, reprovação). A gestão culpa as famílias (desestruturadas) e os alunos (desinteressados). Uma visão crítica (como a de Patto ou Bourdieu) sobre o "fracasso escolar" argumentaria que:', options: [ { text: 'A) O fracasso é resultado de um "dom" natural; alguns nascem para estudar, outros não.', correct: false }, { text: 'B) A culpa é exclusiva dos alunos, que não se esforçam o suficiente.', correct: false }, { text: 'C) O "fracasso" é *produzido* pela própria escola, que (via currículo oculto, avaliação excludente e violência simbólica) não acolhe a cultura dos alunos e reproduz a desigualdade social.', correct: true }, { text: 'D) A causa é puramente neurobiológica; todos esses alunos devem ter dislexia ou TDAH.', correct: false }, { text: 'E) A solução é implementar um modelo tecnicista mais rígido, com mais provas e punições.', correct: false } ], commentary: 'Gabarito: C. (Nível: Difícil) Esta é a tese central da "Produção Social do Fracasso Escolar" (Maria Helena S. Patto). O fracasso não é um problema *do aluno* (A, B, D), mas um problema *da escola* (C) e da sociedade. A escola, ao culpar a vítima (o aluno/família), esconde sua própria incapacidade de ser inclusiva e sua função de reproduzir a desigualdade.' },
+             { theme: 'LDB (Ensino Religioso)', text: '(Art. 4.III) (Aplicação/Lei) A LDB (Art. 33), alterada pela Lei 9.475/97 e pelo acordo Brasil-Santa Sé, estabelece o Ensino Religioso nas escolas públicas de Ensino Fundamental. Qual afirmação está CORRETA sobre sua natureza e oferta?', options: [ { text: 'A) É de oferta e matrícula obrigatórias, com conteúdo definido pelo MEC.', correct: false }, { text: 'B) É de oferta facultativa pela escola e matrícula obrigatória para o aluno.', correct: false }, { text: 'C) É de oferta obrigatória pela escola, matrícula facultativa para o aluno, sendo vedadas quaisquer formas de proselitismo e devendo assegurar o respeito à diversidade cultural religiosa do Brasil.', correct: true }, { text: 'D) É de oferta obrigatória e deve seguir a orientação confessional da religião majoritária local.', correct: false }, { text: 'E) É proibido, pois o Estado é laico.', correct: false } ], commentary: 'Gabarito: C. (Nível: Médio) Pontos-chave do Art. 33 atualizado: Oferta obrigatória (escola TEM que oferecer), Matrícula facultativa (aluno/família ESCOLHE cursar), Respeito à diversidade (NÃO pode ser confessional - D), Vedado proselitismo (NÃO pode tentar converter). A alternativa C contempla todos esses pontos.' },
+
+
+             // --- GABARITO D (10 Questões - Revisadas) ---
+             { theme: 'Educação Especial (Inclusão vs. Integração)', text: '(Art. 7.XIV) (Conceitual) A "Educação Inclusiva" (paradigma atual) se diferencia da "Integração" (modelo anterior). Na *Integração*, o aluno com deficiência era aceito na escola regular, desde que ele se adaptasse. Na *Inclusão*:', options: [ { text: 'A) O aluno com deficiência deve se adaptar ao sistema escolar, que permanece inalterado.', correct: false }, { text: 'B) O aluno é encaminhado para classes especiais segregadas.', correct: false }, { text: 'C) O aluno só é aceito se tiver um laudo médico.', correct: false }, { text: 'D) É a escola e o sistema que devem se transformar (currículo, avaliação, arquitetura) para acolher as diferenças de *todos* os alunos, com ou sem deficiência.', correct: true }, { text: 'E) Apenas alunos com deficiências leves (físicas) são aceitos.', correct: false } ], commentary: 'Gabarito: D. (Nível: Difícil) Esta é a diferença central. Integração (A) = o aluno se adapta à escola. Inclusão (D) = a escola se adapta ao aluno. A Inclusão (Declaração de Salamanca) defende que a escola regular é o local de *todos*, e é ela que deve se modificar (adaptações curriculares, AEE, acessibilidade) para garantir o direito de cada um.' },
+            { theme: 'BNCC (Eixos da Alfabetização)', text: '(Art. 7.V) (Aplicação) A BNCC (Anos Iniciais) organiza o ensino de Língua Portuguesa em 4 Eixos (Práticas de Linguagem). Quando um professor ensina a diferença entre /p/ e /b/ (consciência fonológica) ou a regra do "S" entre vogais (ortografia), ele está atuando no eixo:', options: [ { text: 'A) Leitura/Escuta.', correct: false }, { text: 'B) Produção de Textos (Escrita).', correct: false }, { text: 'C) Oralidade.', correct: false }, { text: 'D) Análise Linguística/Semiótica (Alfabetização).', correct: true }, { text: 'E) Letramento Literário.', correct: false } ], commentary: 'Gabarito: D. (Nível: Médio) A BNCC dividiu a antiga "alfabetização" em um eixo próprio, chamado "Análise Linguística/Semiótica". É neste eixo que se trabalha a *reflexão sobre a língua*: a apropriação do sistema de escrita (fonologia, fonemas) e as regras de ortografia e gramática.' },
+            { theme: 'Avaliação (Diagnóstica)', text: '(Art. 7.XIX) (Estudo de Caso) Na primeira semana de aula do 1º ano, a professora propõe um ditado de uma lista de palavras (sem valor de nota) e pede que as crianças escrevam "do seu jeito". O objetivo desta atividade é realizar uma Avaliação:', options: [ { text: 'A) Somativa, para definir a média do 1º bimestre.', correct: false }, { text: 'B) Formativa, para ajustar o processo de quem já está aprendendo.', correct: false }, { text: 'C) Classificatória, para separar os "aptos" dos "não aptos" à alfabetização.', correct: false }, { text: 'D) Diagnóstica, para identificar o ponto de partida (as hipóteses de escrita, segundo Ferreiro) de cada criança e planejar as intervenções pedagógicas.', correct: true }, { text: 'E) Punitiva, para verificar quem não estudou nas férias.', correct: false } ], commentary: 'Gabarito: D. (Nível: Fácil/Médio) A Avaliação Diagnóstica (Luckesi) ocorre *antes* do processo de ensino. O "sondagem" ou "ditado diagnóstico" (D) é o principal instrumento para o professor de alfabetização mapear em qual hipótese (Pré-Silábica, Silábica, etc.) cada aluno se encontra, para poder *planejar* suas aulas.' },
+            { theme: 'Gestão (PPP - Dimensões)', text: '(Art. 7.XX) (Conceitual) O Projeto Político-Pedagógico (PPP) é assim chamado por ser "Projeto" (ação intencional, futura), "Político" (formação para a cidadania) e "Pedagógico". A dimensão "Pedagógica" refere-se:', options: [ { text: 'A) À definição da filiação partidária da escola.', correct: false }, { text: 'B) Ao compromisso com a formação do cidadão crítico (dimensão Política).', correct: false }, { text: 'C) Aos aspectos financeiros e administrativos (planilhas, matrículas).', correct: false }, { text: 'D) Às concepções de ensino, aprendizagem e avaliação que a escola adota; ao "como" a escola ensina e organiza seu currículo para atingir seus fins políticos.', correct: true }, { text: 'E) Ao fato de ser um documento flexível (dimensão Projeto).', correct: false } ], commentary: 'Gabarito: D. (Nível: Médio) Se a dimensão "Política" (B) responde "Para que" educar, a "Pedagógica" (D) responde "Como" educar. É a definição das teorias (Piaget? Vygotsky?), das metodologias (Projetos? Aula expositiva?) e do sistema de avaliação (Formativa? Somativa?) que a escola, coletivamente, escolhe para executar seu projeto.' },
+            { theme: 'Metodologias (Interdisciplinaridade)', text: '(Art. 7.IX) (Conceitual) Um professor de 4º ano propõe um projeto sobre a "Conta de Luz" da casa dos alunos. Eles leem a conta (Língua Portuguesa - gênero textual), calculam o consumo (Matemática - grandezas), discutem de onde vem a energia (Ciências - hidrelétricas) e o impacto social (Geografia - barragens). Isso é um exemplo de:', options: [ { text: 'A) Multidisciplinaridade, onde as matérias são ensinadas separadamente.', correct: false }, { text: 'B) Pluridisciplinaridade, onde as matérias são ensinadas juntas, mas sem integração real.', correct: false }, { text: 'C) Pedagogia Tecnicista, focada na eficiência do cálculo.', correct: false }, { text: 'D) Interdisciplinaridade, onde um tema/eixo (a conta de luz) é usado para articular e integrar os saberes de diferentes disciplinas.', correct: true }, { text: 'E) Transdisciplinaridade, onde as fronteiras das disciplinas desaparecem totalmente.', correct: false } ], commentary: 'Gabarito: D. (Nível: Médio) Multidisciplinaridade (A) é apenas colocar as disciplinas lado a lado (ex: 1ª aula Mat, 2ª aula Port). Interdisciplinaridade (D) é quando há um *eixo* ou *projeto* (a conta de luz) que "costura" as disciplinas, mostrando como elas se conectam para explicar um fenômeno real.' },
+            { theme: 'DCNs Pedagogia (Atuação)', text: '(Art. 4.I) (Aplicação/Lei) As Diretrizes Curriculares Nacionais (DCNs) do curso de Pedagogia (2006) definem que a docência é a base da identidade do Pedagogo. Essa docência inclui, obrigatoriamente:', options: [ { text: 'A) Apenas a Gestão Escolar (Direção e Coordenação).', correct: false }, { text: 'B) Apenas os Anos Finais do Ensino Fundamental (6º ao 9º ano).', correct: false }, { text: 'C) O Ensino Médio (todas as disciplinas).', correct: false }, { text: 'D) A Educação Infantil e os Anos Iniciais do Ensino Fundamental.', correct: true }, { text: 'E) O Ensino Superior (Licenciaturas).', correct: false } ], commentary: 'Gabarito: D. (Nível: Fácil/Médio) As DCNs de 2006 definem que o Pedagogo é, por excelência, o docente da Educação Infantil (D) e dos Anos Iniciais do E.F. (D). A formação também prepara para a Gestão (A) e para a docência no Magistério (Ensino Médio), mas a docência "base" obrigatória é na E.I. e Anos Iniciais.' },
+            { theme: 'Educação Especial (Baixa Visão)', text: '(Art. 7.XIV) (Estudo de Caso) Um pedagogo recebe um aluno no 2º ano com diagnóstico de "Baixa Visão" (que não é cegueira total). O aluno enxerga, mas com grande dificuldade. Qual é a estratégia de AEE MAIS adequada para este caso?', options: [ { text: 'A) Fornecer materiais exclusivamente em Braille e uma máquina Perkins.', correct: false }, { text: 'B) Posicioná-lo longe da lousa para "forçar" a visão.', correct: false }, { text: 'C) Tratá-lo como se não tivesse dificuldade, oferecendo os mesmos materiais (ex: livro com fonte 12).', correct: false }, { text: 'D) Oferecer materiais com fontes ampliadas (ex: fonte 24), bom contraste (preto no amarelo), recursos ópticos (lupas) e posicioná-lo próximo à lousa.', correct: true }, { text: 'E) Ensinar apenas Libras, pois a visão está comprometida.', correct: false } ], commentary: 'Gabarito: D. (Nível: Difícil) É crucial diferenciar "Cegueira" (A) de "Baixa Visão" (D). O aluno com baixa visão *usa a visão* como canal principal, mas precisa de *ampliação* (fontes, lupas) e *contraste*. O Braille (A) é para cegos. Libras (E) é para surdos. A resposta D descreve as adequações corretas para Baixa Visão.' },
+            { theme: 'BNCC (Campos de Experiência - E.I.)', text: '(Art. 7.XVIII) (Aplicação) Uma professora da E.I. propõe uma atividade de contação de história (ex: "Chapeuzinho Vermelho") e, em seguida, abre uma roda para que as crianças recontem a história, mudem o final e expressem o que sentiram (medo, pena do lobo, etc.). Esta prática atende prioritariamente ao Campo de Experiência:', options: [ { text: 'A) "O eu, o outro e o nós".', correct: false }, { text: 'B) "Corpo, gestos e movimentos".', correct: false }, { text: 'C) "Traços, sons, cores e formas".', correct: false }, { text: 'D) "Escuta, fala, pensamento e imaginação".', correct: true }, { text: 'E) "Espaços, tempos, quantidades, relações e transformações".', correct: false } ], commentary: 'Gabarito: D. (Nível: Médio) Este é o campo de experiência central para o letramento literário e a oralidade na E.I. A atividade envolve a *Escuta* (da história), a *Fala* (reconto), o *Pensamento* (organizar a narrativa) e a *Imaginação* (mudar o final, vivenciar os sentimentos).' },
+            { theme: 'Psicologia da Educação (Vygotsky - ZDP)', text: '(Art. 7.XI) (Estudo de Caso) Um aluno do 2º ano consegue resolver adições simples (ex: 5+4) sozinho (Zona de Desenvolvimento Real - ZDR), mas só consegue resolver adições com reserva (ex: 28+15) com a ajuda da professora (mediação). Segundo Vygotsky, a adição com reserva está na:', options: [ { text: 'A) Zona de Desenvolvimento Real (ZDR) do aluno.', correct: false }, { text: 'B) Zona de Fracasso, pois ele erra sozinho.', correct: false }, { text: 'C) Zona de Desenvolvimento Potencial (aquilo que ele ainda não faz nem com ajuda).', correct: false }, { text: 'D) Zona de Desenvolvimento Proximal (ZDP), pois é o que ele faz *com ajuda*.', correct: true }, { text: 'E) Fase Pré-Operatória, segundo Piaget.', correct: false } ], commentary: 'Gabarito: D. (Nível: Fácil/Médio) A ZDP (Zona de Desenvolvimento Proximal) é o conceito-chave de Vygotsky. É o "espaço" entre o que o aluno faz sozinho (ZDR - Real) e o que ele só consegue fazer com mediação (ZDP - Proximal). É na ZDP que o professor deve atuar para "puxar" o desenvolvimento.' },
+            { theme: 'Letramento Literário', text: '(Art. 7.VI) (Conceitual) O "Letramento Literário" é um processo que vai além da simples decodificação de palavras. Seu objetivo principal é a formação de um leitor que:', options: [ { text: 'A) Memorize os nomes dos autores do cânone literário.', correct: false }, { text: 'B) Consiga ler um texto literário em voz alta com fluência perfeita.', correct: false }, { text: 'C) Utilize os textos literários apenas como pretexto para o ensino de gramática.', correct: false }, { text: 'D) Desenvolva a capacidade de fruição (prazer estético), apreciação (análise crítica) e interpretação de textos literários, compreendendo-os como forma de arte.', correct: true }, { text: 'E) Escreva seus próprios poemas e contos, focando na produção textual.', correct: false } ], commentary: 'Gabarito: D. (Nível: Médio) O Letramento Literário (Teresa Colomer, Rildo Cosson) não é sobre gramática (C) ou memorização (A). É sobre formar o *leitor-fruidor* (D), aquele que aprecia a literatura como arte, que percebe as nuances da linguagem, que se emociona e que (re)constrói sentidos a partir da leitura.' },
+
+             // --- GABARITO E (10 Questões - Revisadas) ---
+             { theme: 'LDB (Princípios)', text: '(Art. 5.I, IV) (Aplicação/Lei) O Art. 3º da LDB lista os princípios do ensino. A "Gestão Democrática do ensino público" (Inciso VIII) e a "Valorização do profissional da educação escolar" (Inciso VII) são princípios que devem nortear o sistema. Qual das seguintes ações fere DIRETAMENTE ambos os princípios?', options: [ { text: 'A) A realização de eleições para diretores de escola.', correct: false }, { text: 'B) A criação de um Plano de Carreira para o magistério, com progressão baseada em titulação e tempo de serviço.', correct: false }, { text: 'C) A oferta de formação continuada dentro do horário de trabalho (HTPC).', correct: false }, { text: 'D) A utilização do Conselho Escolar para debater o uso de verbas do PDDE.', correct: false }, { text: 'E) A imposição de um currículo e método de avaliação pela Secretaria de Educação, sem diálogo com os professores (ferindo a gestão democrática) e sem prever formação (ferindo a valorização).', correct: true } ], commentary: 'Gabarito: E. (Nível: Difícil) Esta questão exige a articulação de dois princípios. A imposição vertical (E) fere a Gestão Democrática (que pressupõe a participação no PPP, Art. 14). Ao impor algo novo *sem* prover os meios para que o professor o execute (formação continuada), fere-se também a Valorização (que não é só salário, mas também condições de trabalho e formação).' },
+            { theme: 'Alfabetização (Hipótese Pré-Silábica)', text: '(Art. 7.V) (Estudo de Caso) Uma criança de 5 anos, ao ser solicitada a escrever "BOLO", desenha um bolo. Ao ser solicitada a escrever "FORMIGA", ela escreve "AAAAA" (porque formigas são muitas). Esta criança está na hipótese:', options: [ { text: 'A) Silábica com valor sonoro.', correct: false }, { text: 'B) Alfabética, mas com erros ortográficos.', correct: false }, { text: 'C) Silábica sem valor sonoro.', correct: false }, { text: 'D) Silábico-Alfabética.', correct: false }, { text: 'E) Pré-Silábica, pois ainda não compreendeu que a escrita representa a pauta sonora (os sons da fala), e não o objeto (o desenho) ou a quantidade (muitas letras para formiga).', correct: true } ], commentary: 'Gabarito: E. (Nível: Médio) A hipótese Pré-Silábica (Nível 1) é marcada pela *não compreensão* de que a escrita é a notação do som. A criança acha que a escrita representa o objeto (realismo nominal - desenhar o bolo) ou suas características (ex: "FORMIGA" é pequeno, "BOI" é grande; ou, como no caso, "muitas letras" para "muitas formigas").' },
+            { theme: 'Tendências Pedagógicas (Crítico-Social)', text: '(Art. 7.XVI) (Comparação) A Pedagogia Crítico-Social dos Conteúdos (Libâneo/Saviani) faz uma crítica tanto à Pedagogia Tradicional quanto à Pedagogia Renovada (Escola Nova). A crítica à Escola Nova (renovada) é que ela:', options: [ { text: 'A) É muito focada no conteúdo e na memorização (crítica à Tradicional).', correct: false }, { text: 'B) É tecnicista e visa apenas o mercado de trabalho.', correct: false }, { text: 'C) É autoritária e centrada no professor (crítica à Tradicional).', correct: false }, { text: 'D) É libertadora e foca em temas geradores (crítica à Freire).', correct: false }, { text: 'E) Ao focar excessivamente nos "interesses" e na "atividade" do aluno, negligencia o ensino dos conteúdos científicos e universais, que são essenciais para a classe trabalhadora entender e transformar o mundo.', correct: true } ], commentary: 'Gabarito: E. (Nível: Difícil) Saviani/Libâneo criticam a Escola Nova (B) por seu "psicologismo". Ao dizer que o aluno só aprende "o que lhe interessa", a Escola Nova (segundo eles) acaba não ensinando os conteúdos formais (ciência, história) para os mais pobres, que só têm a escola para acessá-los. A Crítico-Social defende: o conteúdo *é* importante, mas deve ser ensinado de forma *crítica*.' },
+            { theme: 'BNCC (Campos de Experiência - E.I.)', text: '(Art. 7.IV, XVIII) (Aplicação) Um professor da E.I. (3 anos) propõe uma brincadeira de "estátua" com diferentes ritmos musicais (rápido, lento) e, em seguida, uma atividade de modelagem com argila. Estas práticas atendem prioritariamente aos Campos de Experiência:', options: [ { text: 'A) "O eu, o outro e o nós" e "Espaços, tempos, quantidades".', correct: false }, { text: 'B) "Escuta, fala, pensamento" e "O eu, o outro e o nós".', correct: false }, { text: 'C) Apenas "Corpo, gestos e movimentos".', correct: false }, { text: 'D) Apenas "Traços, sons, cores e formas".', correct: false }, { text: 'E) "Corpo, gestos e movimentos" (na dança/estátua) e "Traços, sons, cores e formas" (na argila/música).', correct: true } ], commentary: 'Gabarito: E. (Nível: Médio) A atividade articula dois campos. A brincadeira de estátua (dança, pausa, ritmo) é uma exploração de "Corpo, gestos e movimentos". A exploração da argila (textura, tridimensionalidade) e da música (ritmo) atende a "Traços, sons, cores e formas" (linguagens artísticas).' },
+            { theme: 'LDB (Educação Especial)', text: '(Art. 7.XIV) (Aplicação/Lei) Segundo a LDB (Art. 58 e 59), a Educação Especial (para educandos com deficiência, TGD e altas habilidades) deve ser oferecida "preferencialmente na rede regular de ensino". A lei também assegura (Art. 59) aos alunos:', options: [ { text: 'A) Professores sem especialização, pois o foco é a socialização.', correct: false }, { text: 'B) Aceleração de estudos (para superdotados) e currículos/métodos/avaliação adaptados (para os demais).', correct: false }, { text: 'C) A matrícula apenas em classes especiais, separadas dos demais.', correct: false }, { text: 'D) A terminalidade específica (diploma diferenciado) para todos os alunos com deficiência.', correct: false }, { text: 'E) Currículos, métodos, técnicas e recursos educativos específicos e adaptados às suas necessidades, e (quando for o caso) terminalidade específica para aqueles que não atingirem o nível exigido para conclusão do E.F.', correct: true } ], commentary: 'Gabarito: E. (Nível: Difícil) O Art. 59 é complexo. Ele garante as adaptações (E) e a aceleração (B, mas B está incompleto). A "Terminalidade Específica" (E) é um direito (e não uma obrigação - D) para o aluno com deficiência intelectual (por exemplo) que, mesmo com todas as adaptações, não consegue atingir o nível curricular padrão do E.F., garantindo-lhe um certificado de conclusão.' },
+            { theme: 'Tendências Pedagógicas (Tecnicista)', text: '(Art. 7.XVI) (Estudo de Caso) Uma rede de ensino adota um "sistema de ensino" (apostilamento) onde todas as aulas são roteirizadas por especialistas, os professores devem seguir o roteiro (instrução programada) e os alunos são avaliados por testes padronizados (Behaviorismo). Esta abordagem é um exemplo clássico da:', options: [ { text: 'A) Pedagogia Libertadora (Freire).', correct: false }, { text: 'B) Pedagogia Crítico-Social (Libâneo).', correct: false }, { text: 'C) Pedagogia Tradicional (foco no mestre).', correct: false }, { text: 'D) Pedagogia Renovada (Escola Nova - foco no aluno).', correct: false }, { text: 'E) Pedagogia Tecnicista (foco na eficiência, método e controle do processo).', correct: true } ], commentary: 'Gabarito: E. (Nível: Médio) A Pedagogia Tecnicista (inspirada em Skinner) vê o ensino como "engenharia comportamental". O professor não planeja; ele *aplica* um pacote instrucional (a apostila roteirizada) criado por especialistas. O foco é na eficiência, no produto (teste) e na neutralidade (aparente) do processo.' },
+            { theme: 'Psicologia da Educação (Piaget - Erro)', text: '(Art. 7.XI) (Conceitual) Na perspectiva Construtivista (Piagetiana), quando um aluno comete um "erro" (ex: escreve "CAVALU" para "CAVALO"), o professor deve interpretar esse erro como:', options: [ { text: 'A) Um sinal de preguiça ou desatenção, que deve ser punido.', correct: false }, { text: 'B) Um sinal de incapacidade cognitiva (deficiência).', correct: false }, { text: 'C) Um problema de método do professor, que deve ser trocado.', correct: false }, { text: 'D) Um sintoma de problemas familiares (visão psicológica clínica).', correct: false }, { text: 'E) Uma "hipótese de escrita" valiosa (um "erro construtivo"), que mostra *como* o aluno está pensando (no caso, alfabético) e permite ao professor intervir na ZDP.', correct: true } ], commentary: 'Gabarito: E. (Nível: Médio) Para o Construtivismo (e Vygotsky), o erro não é um "fracasso" (A, B). É uma *etapa* necessária da aprendizagem. "CAVALU" (um erro ortográfico baseado na fonética) é um "erro construtivo" (E) que mostra que o aluno já é alfabético e está pensando sobre a língua. (Nota: a ZDP é de Vygotsky, mas a ideia de "erro construtivo" é piagetiana; as bancas misturam as duas).' },
+            { theme: 'Fundamentos (Didática)', text: '(Art. 6.I) (Conceitual) A Didática é o campo de estudo da Pedagogia que investiga a articulação entre o "o quê" ensinar (conteúdo) e o "como" ensinar (método). A Didática Crítica (influenciada por Libâneo e Freire) supera a Didática Instrumental (Tecnicista) ao afirmar que:', options: [ { text: 'A) O método (o "como") é neutro, bastando aplicá-lo corretamente para garantir a aprendizagem.', correct: false }, { text: 'B) O método mais eficaz é a aula expositiva, focada no professor.', correct: false }, { text: 'C) O "como" (método) deve focar apenas no desenvolvimento psicológico do aluno, sem se preocupar com os fins (Escola Nova).', correct: false }, { text: 'D) O conteúdo é irrelevante, desde que o aluno se sinta feliz.', correct: false }, { text: 'E) O "como" (método) não é neutro, mas está intrinsecamente ligado ao "para quê" (fins políticos) e ao "o quê" (conteúdo), devendo promover a articulação entre o saber escolar e a prática social do aluno.', correct: true } ], commentary: 'Gabarito: E. (Nível: Difícil) A Didática Instrumental (Tecnicista) (A) se preocupa só com a *técnica* (como ensinar eficientemente). A Didática Crítica (Libâneo) (E) diz que a técnica não é neutra. O método (como) deve estar a serviço dos fins (para quê) e deve ser crítico, relacionando o conteúdo (o quê) com a realidade social (prática social).' },
+            { theme: 'LDB (Formação de Professores)', text: '(Art. 4.II) (Aplicação/Lei) A LDB (Art. 62) estabelece que a formação de docentes para atuar na Educação Básica far-se-á em nível superior (licenciatura). No entanto, ela admite uma exceção (formação mínima) para a docência na Educação Infantil e nos Anos Iniciais do E.F. Qual é?', options: [ { text: 'A) O notório saber, reconhecido por uma banca de especialistas.', correct: false }, { text: 'B) O Ensino Fundamental completo, com experiência comprovada.', correct: false }, { text: 'C) O Ensino Médio completo, na modalidade Bacharelado.', correct: false }, { text: 'D) O Ensino Médio completo, desde que o professor curse uma pós-graduação.', correct: false }, { text: 'E) O Ensino Médio, na modalidade Normal (antigo Magistério).', correct: true } ], commentary: 'Gabarito: E. (Nível: Médio) A LDB *exige* nível superior (Licenciatura/Pedagogia) como regra (Art. 62). Porém, ela abre uma *exceção* (parágrafo único do Art. 62) para a Educação Infantil e os 5 primeiros anos do E.F., onde é admitida como formação *mínima* (não ideal) a oferecida em nível médio, na modalidade Normal (Magistério).' },
+            { theme: 'LDB (Educação Física)', text: '(Art. 7.III) (Aplicação/Lei) A LDB (Art. 26, § 3º) define a Educação Física como componente curricular obrigatório da Educação Básica. No entanto, sua *prática* torna-se facultativa para o aluno em algumas situações. Qual das seguintes NÃO é uma exceção prevista na LDB?', options: [ { text: 'A) Aluno que cumpra jornada de trabalho igual ou superior a 6 horas.', correct: false }, { text: 'B) Aluno maior de 30 anos de idade.', correct: false }, { text: 'C) Aluno que estiver prestando serviço militar inicial.', correct: false }, { text: 'D) Aluno amparado pelo Decreto-Lei nº 1.044/1969 (tratamentos de saúde).', correct: false }, { text: 'E) Aluno matriculado no Ensino Médio que apresente excelente desempenho em Matemática e Língua Portuguesa.', correct: true } ], commentary: 'Gabarito: E. (Nível: Difícil) O Art. 26, § 3º lista as exceções para a *prática* facultativa: trabalho (+6h) (A), +30 anos (B), serviço militar (C), tratamento de saúde (D, referente ao decreto-lei), e quem tem prole. Desempenho acadêmico (E) não consta na lei como exceção.' },
+        ];
+
+
+        // --- LÓGICA DO SIMULADO (PAGINADO + LOCALSTORAGE) ---
+        // (Lógica JavaScript mantida exatamente como na versão anterior - v3)
+        // Inclui: localStorageKey, saveProgress, loadProgress, resetProgress,
+        // shuffleArray, initializeQuiz, displayQuestion (com a correção do regex!),
+        // selectOption, changeQuestion, goToQuestion, updateNavigationButtons,
+        // updateStats, createNavGrid, updateNavGridItem, updateNavGridSelection,
+        // showFinalResults, showFinalResultsView, reviewAnswers
+         const localStorageKey = 'pndQuizProgress_v4_corrigido'; // Nova chave
+        let currentQuestionIndex = 0;
+        let questions = [];
+        let questionStates = [];
+
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let questionsAnsweredCount = 0;
+
+        // Elementos da UI
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('questions-answered-count');
+        const statsCorrect = document.getElementById('stats-correct');
+        const statsIncorrect = document.getElementById('stats-incorrect');
+        const statsUnanswered = document.getElementById('stats-unanswered');
+        const questionDisplayArea = document.getElementById('question-display-area');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const finishButton = document.getElementById('finish-button');
+        const finalScoreBoard = document.getElementById('final-score-board');
+        const navGrid = document.getElementById('nav-grid');
+        const totalQuestions = originalQuestions.length;
+
+        // --- Funções de Persistência (localStorage) ---
+        function saveProgress() {
+            const quizState = { currentQuestionIndex, questions, questionStates, correctCount, incorrectCount, questionsAnsweredCount };
+            try { localStorage.setItem(localStorageKey, JSON.stringify(quizState)); } catch (e) { console.error("Erro ao salvar progresso:", e); }
+        }
+
+        function loadProgress() {
+            const savedStateJSON = localStorage.getItem(localStorageKey);
+            if (savedStateJSON) {
+                try {
+                    const savedState = JSON.parse(savedStateJSON);
+                    if (savedState && savedState.questions && savedState.questionStates && savedState.questions.length === totalQuestions) {
+                        currentQuestionIndex = savedState.currentQuestionIndex;
+                        questions = savedState.questions;
+                        questionStates = savedState.questionStates;
+                        correctCount = savedState.correctCount;
+                        incorrectCount = savedState.incorrectCount;
+                        questionsAnsweredCount = savedState.questionsAnsweredCount;
+                        console.log("Progresso carregado com sucesso.");
+                        return true;
+                    } else { localStorage.removeItem(localStorageKey); return false; }
+                } catch (e) { console.error("Erro ao carregar progresso:", e); localStorage.removeItem(localStorageKey); return false; }
+            }
+            return false;
+        }
+
+         function resetProgress() {
+            if (confirm("Tem certeza que deseja reiniciar o simulado? Todo o seu progresso salvo será perdido.")) {
+                localStorage.removeItem(localStorageKey);
+                window.location.reload();
+            }
+        }
+
+        // --- Funções do Quiz ---
+        function shuffleArray(array) {
+             for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function initializeQuiz() {
+             console.log("Inicializando quiz...");
+            if (!loadProgress()) {
+                 console.log("Nenhum progresso salvo encontrado ou inválido. Iniciando do zero.");
+                questions = [...originalQuestions];
+                shuffleArray(questions);
+                questionStates = questions.map(() => ({ selectedOptionIndex: null, answeredCorrectly: null, feedbackVisible: false }));
+                currentQuestionIndex = 0;
+                correctCount = 0;
+                incorrectCount = 0;
+                questionsAnsweredCount = 0;
+                saveProgress();
+            } else {
+                 console.log(`Progresso carregado. Questão atual: ${currentQuestionIndex + 1}`);
+            }
+
+            if (questionsAnsweredCount === totalQuestions && questionStates.every(s => s.answeredCorrectly !== null)) {
+                 console.log("Simulado já finalizado. Exibindo resultados.");
+                 showFinalResultsView();
+            } else {
+                console.log("Exibindo questão atual.");
+                 displayQuestion(currentQuestionIndex);
+                 updateStats();
+                 updateNavigationButtons();
+                 createNavGrid();
+            }
+        }
+
+
+        function displayQuestion(index) {
+             console.log(`Exibindo questão ${index + 1}`);
+            const q = questions[index];
+            const state = questionStates[index];
+            let html = `<div class="question-block" id="q-${index}">`;
+            html += `<p class="question-header">Questão ${index + 1} de ${totalQuestions}</p>`;
+            html += `<h3 class="question-theme">Tema: ${q.theme}</h3>`;
+            // *** CORREÇÃO DA EXPRESSÃO REGULAR APLICADA AQUI ***
+            let questionTextClean = q.text.replace(/^\(.*?\)\s*/, ''); // Usando .*? (non-greedy)
+            html += `<div class="question-text">${questionTextClean}</div>`;
+            html += '<ul class="options-container">';
+
+            q.options.forEach((opt, optIndex) => {
+                const letter = String.fromCharCode(65 + optIndex);
+                let classes = 'option';
+                let isSelected = state.selectedOptionIndex === optIndex;
+                let isDisabled = state.answeredCorrectly !== null;
+
+                if (isSelected) classes += ' selected';
+                if (isDisabled) classes += ' disabled';
+                if (isDisabled) {
+                    if (opt.correct) classes += ' correct';
+                    else if (isSelected) classes += ' incorrect';
+                }
+
+                 let optionTextClean = opt.text.substring(opt.text.indexOf(')') + 1).trim();
+
+                html += `<li class="${classes}"
+                            data-index="${optIndex}"
+                            data-correct="${opt.correct}"
+                            onclick="${isDisabled ? '' : `selectOption(this, ${opt.correct}, ${index}, ${optIndex})`}">
+                            <span class="option-letter">${letter})</span>
+                            <span class="option-text">${optionTextClean}</span>
+                         </li>`;
+            });
+
+            html += '</ul>';
+            let feedbackClasses = 'feedback';
+            let feedbackStrongText = '';
+            if (state.feedbackVisible) {
+                if (state.answeredCorrectly) {
+                    feedbackClasses += ' correct';
+                    feedbackStrongText = '<strong>Correto!</strong> ';
+                } else {
+                    feedbackClasses += ' incorrect';
+                    feedbackStrongText = '<strong>Incorreto.</strong> ';
+                }
+            }
+             let fullCommentary = q.commentary;
+             if (!fullCommentary.toLowerCase().includes('gabarito:')) {
+                 const correctLetter = String.fromCharCode(65 + q.options.findIndex(o => o.correct));
+                 fullCommentary = `Gabarito: ${correctLetter}. ${fullCommentary}`;
+             }
+
+
+            html += `<div class="${feedbackClasses}" id="feedback-${index}" style="display: ${state.feedbackVisible ? 'block' : 'none'}">
+                        <span class="feedback-content">${feedbackStrongText}${fullCommentary}</span>
+                     </div>`;
+            html += '</div>';
+
+            questionDisplayArea.innerHTML = html;
+            updateNavGridSelection(index);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        function selectOption(optionElement, isCorrect, questionId, optionIndex) {
+             if (questionId !== currentQuestionIndex) return;
+            const questionBlock = document.getElementById(`q-${questionId}`);
+            const options = questionBlock.querySelectorAll('.option');
+            const feedback = document.getElementById(`feedback-${questionId}`);
+            const state = questionStates[questionId];
+
+            if (state.answeredCorrectly !== null) return;
+
+             // Incrementa contador *apenas* se for a primeira resposta a esta questão
+            if(state.selectedOptionIndex === null) {
+                 questionsAnsweredCount++;
+            }
+
+            state.selectedOptionIndex = optionIndex;
+            state.feedbackVisible = true;
+            optionElement.classList.add('selected');
+
+             options.forEach(opt => {
+                opt.classList.add('disabled');
+                opt.onclick = null;
+            });
+
+            // Recalcula scores do zero
+            // correctCount = questionStates.filter(s => s.answeredCorrectly === true).length;
+            // incorrectCount = questionStates.filter(s => s.answeredCorrectly === false).length;
+            // Não precisa recalcular tudo, apenas incrementar
+             if (isCorrect) {
+                if(state.answeredCorrectly === null) correctCount++; // Incrementa só se não contou antes
+                state.answeredCorrectly = true;
+                optionElement.classList.add('correct');
+                feedback.classList.add('correct');
+                let fullCommentary = questions[questionId].commentary;
+                // ... (lógica do gabarito no comentário mantida)
+                 if (!fullCommentary.toLowerCase().includes('gabarito:')) { const correctLetter = String.fromCharCode(65 + optionIndex); fullCommentary = `Gabarito: ${correctLetter}. ${fullCommentary}`; }
+                feedback.querySelector('.feedback-content').innerHTML = `<strong>Correto!</strong> ${fullCommentary}`;
+            } else {
+                 if(state.answeredCorrectly === null) incorrectCount++; // Incrementa só se não contou antes
+                state.answeredCorrectly = false;
+                optionElement.classList.add('incorrect');
+                feedback.classList.add('incorrect');
+                let fullCommentary = questions[questionId].commentary;
+                let correctOptIndex = questions[questionId].options.findIndex(o => o.correct);
+                 if (!fullCommentary.toLowerCase().includes('gabarito:')) { const correctLetter = String.fromCharCode(65 + correctOptIndex); fullCommentary = `Gabarito: ${correctLetter}. ${fullCommentary}`; }
+                feedback.querySelector('.feedback-content').innerHTML = `<strong>Incorreto.</strong> ${fullCommentary}`;
+
+                options.forEach((opt, idx) => {
+                     if (idx === correctOptIndex) opt.classList.add('correct');
+                });
+            }
+
+
+            feedback.style.display = 'block';
+            updateStats();
+            updateNavGridItem(questionId);
+            saveProgress();
+        }
+
+        function changeQuestion(direction) {
+             const newIndex = currentQuestionIndex + direction;
+            if (newIndex >= 0 && newIndex < totalQuestions) {
+                currentQuestionIndex = newIndex;
+                displayQuestion(currentQuestionIndex);
+                updateNavigationButtons();
+                saveProgress();
+            }
+        }
+
+        function goToQuestion(index) {
+             if (index >= 0 && index < totalQuestions) {
+                currentQuestionIndex = index;
+                displayQuestion(currentQuestionIndex);
+                updateNavigationButtons();
+                saveProgress();
+            }
+        }
+
+
+        function updateNavigationButtons() {
+            prevButton.disabled = currentQuestionIndex === 0;
+            nextButton.disabled = currentQuestionIndex === totalQuestions - 1;
+
+            if (currentQuestionIndex === totalQuestions - 1) {
+                nextButton.style.display = 'none';
+                finishButton.style.display = 'inline-block';
+            } else {
+                nextButton.style.display = 'inline-block';
+                finishButton.style.display = 'none';
+            }
+        }
+
+        function updateStats() {
+            // Usa os contadores incrementais
+            statsCorrect.innerText = correctCount;
+            statsIncorrect.innerText = incorrectCount;
+            statsUnanswered.innerText = totalQuestions - questionsAnsweredCount; // Baseado no contador de respondidas
+
+            const percentage = totalQuestions > 0 ? (questionsAnsweredCount / totalQuestions) * 100 : 0;
+            progressBar.style.width = percentage + '%';
+            progressText.innerText = questionsAnsweredCount;
+        }
+
+        // --- Funções para Navegação Rápida (Grid) ---
+        function createNavGrid() {
+            navGrid.innerHTML = '';
+            for (let i = 0; i < totalQuestions; i++) {
+                const button = document.createElement('button');
+                button.innerText = i + 1;
+                button.id = `nav-btn-${i}`;
+                button.className = 'nav-grid-button'; // Adiciona classe para estilo
+                button.onclick = () => goToQuestion(i);
+                // Estilos aplicados via CSS agora
+                updateNavGridItem(i);
+                navGrid.appendChild(button);
+            }
+            updateNavGridSelection(currentQuestionIndex);
+        }
+
+        function updateNavGridItem(index) {
+            const button = document.getElementById(`nav-btn-${index}`);
+            if (!button) return;
+            const state = questionStates[index];
+             // Remove classes de estado anteriores
+             button.classList.remove('answered-correct', 'answered-incorrect');
+             // Adiciona a classe de estado atual
+            if (state.answeredCorrectly === true) {
+                button.classList.add('answered-correct');
+            } else if (state.answeredCorrectly === false) {
+                 button.classList.add('answered-incorrect');
+            }
+        }
+
+        function updateNavGridSelection(selectedIndex) {
+             document.querySelectorAll('.nav-grid-button').forEach(btn => {
+                 btn.classList.remove('current');
+             });
+            const currentBtn = document.getElementById(`nav-btn-${selectedIndex}`);
+            if (currentBtn) {
+                currentBtn.classList.add('current');
+            }
+        }
+
+
+        // --- Funções de Finalização e Revisão ---
+         function showFinalResults() {
+              if (questionsAnsweredCount < totalQuestions) {
+                if (!confirm(`Você respondeu ${questionsAnsweredCount} de ${totalQuestions} questões.\nDeseja realmente finalizar e ver sua pontuação agora?`)) {
+                    return;
+                }
+             }
+             // Força a contagem final para total
+             questionsAnsweredCount = totalQuestions;
+             saveProgress(); // Salva estado como finalizado
+             showFinalResultsView();
+        }
+
+        function showFinalResultsView(){
+             questionDisplayArea.innerHTML = '<h2>Simulado Finalizado!</h2><p>Confira seu desempenho abaixo.</p>';
+            document.getElementById('navigation-buttons').style.display = 'none';
+            document.getElementById('progress-bar-container').style.display = 'none';
+            document.getElementById('progress-text').style.display = 'none';
+            document.getElementById('sidebar').style.display = 'none';
+
+            document.getElementById('final-correct').innerText = correctCount;
+            document.getElementById('final-incorrect').innerText = incorrectCount;
+            document.getElementById('final-total').innerText = correctCount;
+
+            finalScoreBoard.style.display = 'block';
+            finalScoreBoard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function reviewAnswers() {
+            finalScoreBoard.style.display = 'none';
+            document.getElementById('navigation-buttons').style.display = 'flex';
+            document.getElementById('progress-bar-container').style.display = 'block';
+            document.getElementById('progress-text').style.display = 'block';
+            document.getElementById('sidebar').style.display = 'block';
+            createNavGrid(); // Recria grid para navegação
+
+            currentQuestionIndex = 0; // Volta para a primeira questão na revisão
+            displayQuestion(currentQuestionIndex);
+            updateNavigationButtons();
+            updateStats(); // Mostra stats finais durante a revisão
+        }
+
+
+        // Carregar o quiz quando a página abrir
+        window.onload = initializeQuiz;
+    </script>
+</body>
+</html>
